@@ -1,0 +1,25 @@
+{
+  "id": "7a36b9f8-f8fe-49d8-99a9-3cc2f2c36f8d",
+  "version": "v1.4.4",
+  "date": "2026-09-14",
+  "notes": [
+    {
+      "category": "fix",
+      "text": "Alias Creation for Mono Versions fixed, Mono versions now create as .cmd files instead of their exe versions due to some issues with Mono versions"
+    },
+    {
+      "category": "improve",
+      "text": "Add Redirect Link to Github/Gitlab Auth Modal for AppImage users, since the button doesnt work"
+    },
+    {
+      "category": "improve",
+      "text": "File namings on Github Release Page for GodotHub have been changed to be more user friendly and easy to understand"
+    },
+    {
+      "category": "improve",
+      "text": "Add Missing Japanese Locale Keys; PR by shiena"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1789412855
+}

@@ -1,0 +1,73 @@
+{
+  "id": "7bb162fe-085a-4e38-bb75-9b780326a05f",
+  "version": "v1.3.5",
+  "date": "2026-08-14",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Git Authentication: sign in to GitHub or GitLab with OAuth device flow - a code appears, you authorize it in your browser, and GodotHub uses your account for HTTPS push, pull, fetch and clone"
+    },
+    {
+      "category": "add",
+      "text": "Self-hosted GitLab support: connect to your own instance by entering its base URL and an OAuth Application ID"
+    },
+    {
+      "category": "add",
+      "text": "Personal access tokens for hosts that don't support OAuth sign-in, like Codeberg, Gitea and Bitbucket"
+    },
+    {
+      "category": "add",
+      "text": "Create a repository on your connected GitHub or GitLab account right from the project creation flow, then push the initial commit"
+    },
+    {
+      "category": "add",
+      "text": "New UI - Project time tracking: project cards now show how long you've spent in a project today and this week, with export/import of your stats"
+    },
+    {
+      "category": "add",
+      "text": "Godot Archive as an alternative download source for Godot versions, with a quick switch when a release is missing from GitHub"
+    },
+    {
+      "category": "add",
+      "text": "PR by jokka39: Add Russian translation"
+    },
+    {
+      "category": "add",
+      "text": "PR by Spy-B: Start adding the Arabic translation"
+    },
+    {
+      "category": "fix",
+      "text": "Portable .exe installs now show a clear 'manual update required' screen with a link to the latest GitHub release instead of failing silently"
+    },
+    {
+      "category": "fix",
+      "text": "Fixed several edge cases in the Git authentication flow"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: Settings view refactored to be more UX friendly"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: project cards revamp plus a new non-card layout"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: revamped titlebar with language menu, running projects chip and task tray"
+    },
+    {
+      "category": "improve",
+      "text": "Language switcher moved into the titlebar"
+    },
+    {
+      "category": "improve",
+      "text": "Major performance and code-quality refactor across the Rust backend"
+    },
+    {
+      "category": "improve",
+      "text": "README: star history and supported languages sections, plus a new Contributing.md"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1786723045
+}

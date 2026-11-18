@@ -1,0 +1,96 @@
+{
+  "id": "bb23f26c-73dc-4ec7-b24f-e8cc7ed1ee65",
+  "version": "v1.2.0",
+  "date": "2026-08-02",
+  "notes": [
+    {
+      "category": "fix",
+      "text": "Now You can drag the App on Setup Wizard Screen"
+    },
+    {
+      "category": "fix",
+      "text": "Changed overflow-clip from overflow-hidden in Project Card for Icons to fix clipping bugs in some Mac Devices"
+    },
+    {
+      "category": "add",
+      "text": "Opacity slider in Settings -> Appearance for Icons in Project Cards"
+    },
+    {
+      "category": "add",
+      "text": "PR by Stryde01: Add Chinese translation to the app, Settings -> Display"
+    },
+    {
+      "category": "add",
+      "text": "PR by XRomieo: Add 'Open in Console' option when opening a project"
+    },
+    {
+      "category": "fix",
+      "text": "PR by Zalyto: Icon Clipping in Project Card"
+    },
+    {
+      "category": "add",
+      "text": "Tags System: Syncs with Projects' project.godot file"
+    },
+    {
+      "category": "add",
+      "text": "OS Decoration Toggle in Settings -> Display"
+    },
+    {
+      "category": "add",
+      "text": "Open with Console Toggle in Projects Card & Installed Versions"
+    },
+    {
+      "category": "add",
+      "text": "Able to Open Versions themselves in Versions view"
+    },
+    {
+      "category": "add",
+      "text": "Directory Naming Convention"
+    },
+    {
+      "category": "improve",
+      "text": "Redesigned Create Project Modal & Clone Project Modal with Live preview"
+    },
+    {
+      "category": "add",
+      "text": "Templates Asset Library to download templates from Godot Asset Store"
+    },
+    {
+      "category": "fix",
+      "text": "PR by XRomieo: Workspace scan & refresh now work reliably across workspaces, including newly created ones"
+    },
+    {
+      "category": "improve",
+      "text": "Corner radius shape is now a Squircle (iOS styled) for a softer look"
+    },
+    {
+      "category": "add",
+      "text": "Experimental 'New UI' toggle in Settings -> Appearance (beta, disabled for now, will be enabled in a future update)"
+    },
+    {
+      "category": "add",
+      "text": "Create Project button on template cards to start a project from a template right in the Templates view"
+    },
+    {
+      "category": "add",
+      "text": "Known Issues section in the changelog so each version can list its known problems"
+    },
+    {
+      "category": "fix",
+      "text": "Fixed 'Template not found' error that could happen after rescanning templates; broken template registrations now self-heal automatically"
+    },
+    {
+      "category": "fix",
+      "text": "Custom titlebar is back as the default on Linux, and the OS Decoration toggle in Settings now actually takes effect on Linux too"
+    },
+    {
+      "category": "improve",
+      "text": "Known issues in the changelog are now included in the auto-generated GitHub release notes"
+    }
+  ],
+  "known_issues": [
+    "Linux OS: AppImage won't work in some Distros (issue is still unknown and might be a tuari issue, will fix it asap when i find the solution, in the meantime use .rpm or .deb files)",
+    "Linux OS: 'Open with Console', 'Open Folder' and 'Open in IDE' might not work in some Distros as well. (issue is still unknown and might be a tuari issue, will fix it asap when i find the solution)"
+  ],
+  "created_at": 1785270388
+}

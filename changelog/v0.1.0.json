@@ -1,0 +1,49 @@
+{
+  "id": "5512ee2c-6273-4efb-b3d3-8063b574c302",
+  "version": "v0.1.0",
+  "date": "2026-07-13",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Create new projects, scan for existing ones, or import them directly"
+    },
+    {
+      "category": "add",
+      "text": "Download versions or scan for versions you already have"
+    },
+    {
+      "category": "add",
+      "text": "Categories and workspaces to keep your projects organized, whether they're personal, for game jams, or freelance work"
+    },
+    {
+      "category": "add",
+      "text": "Changelog view to track what's changed in each version of GodotHub"
+    },
+    {
+      "category": "add",
+      "text": "Settings view so you can tweak GodotHub to work the way you want"
+    },
+    {
+      "category": "add",
+      "text": "Dark and light mode with a customizable accent color"
+    },
+    {
+      "category": "add",
+      "text": "Pin projects to keep your most important ones at the top"
+    },
+    {
+      "category": "add",
+      "text": "Sort and filter your projects however you like"
+    },
+    {
+      "category": "add",
+      "text": "Search projects by name"
+    },
+    {
+      "category": "add",
+      "text": "Rename versions to use whatever naming style works for you"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1783950258
+}

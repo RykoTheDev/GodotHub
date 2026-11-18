@@ -1,0 +1,85 @@
+{
+  "id": "cf9baf98-4e73-42b3-b6d1-fdb38e6487f9",
+  "version": "v1.3.0",
+  "date": "2026-08-10",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Asset Library/Store integration: browse and install assets into your existing projects or templates"
+    },
+    {
+      "category": "add",
+      "text": "Updates from Dev tab in the sidebar with announcements, new features, improvements, breaking changes and known issues straight from the developer"
+    },
+    {
+      "category": "add",
+      "text": "Known Issues section in the Check for Updates release notes, plus a Download from GitHub button next to Install"
+    },
+    {
+      "category": "add",
+      "text": "Preview mode in the Check for Updates modal so you can test the update UI without downloading anything"
+    },
+    {
+      "category": "add",
+      "text": "Stage button in the Git sidebar that stages all changed files, then turns into a Commit button"
+    },
+    {
+      "category": "add",
+      "text": "Right click context menu on changed files with Stage, Unstage, Discard, Copy Path and View Diff options"
+    },
+    {
+      "category": "add",
+      "text": "Staged files now appear in their own group with unstage buttons, just like VS Code"
+    },
+    {
+      "category": "add",
+      "text": "Dismissible New UI announcement banner on the Projects view"
+    },
+    {
+      "category": "fix",
+      "text": "Git diffs not showing in the UI, the diff parser was rewritten to fix it"
+    },
+    {
+      "category": "fix",
+      "text": "Changed file names getting truncated (like 'project.godot' showing as 'roject.godot'), now staging and committing them works again"
+    },
+    {
+      "category": "fix",
+      "text": "Files ignored by .gitignore no longer appear in the changes section"
+    },
+    {
+      "category": "fix",
+      "text": "Files outside the project folder no longer show up in the changes section"
+    },
+    {
+      "category": "fix",
+      "text": "Staged files no longer missing from the changes section because of a status parsing issue"
+    },
+    {
+      "category": "improve",
+      "text": "Git sidebar redesigned to match VS Code's Git integration style, with commit history moved to the bottom"
+    },
+    {
+      "category": "improve",
+      "text": "Diff viewer UI and UX improvements"
+    },
+    {
+      "category": "improve",
+      "text": "Horizontal scrollbar now matches the themed vertical scrollbar"
+    },
+    {
+      "category": "improve",
+      "text": "Check for Updates modal made wider so it no longer clips on smaller windows"
+    },
+    {
+      "category": "improve",
+      "text": "Performance fixes and removed stale comments across the codebase"
+    },
+    {
+      "category": "improve",
+      "text": "Winget releases now publish the .msi installer instead of the .exe"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1786286884
+}

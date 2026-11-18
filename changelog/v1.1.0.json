@@ -1,0 +1,33 @@
+{
+  "id": "c4a2e3b1-8f6d-4c5a-9b7e-2d1f0a3c5e8b",
+  "version": "v1.1.0",
+  "date": "2026-07-27",
+  "notes": [
+    {
+      "category": "improve",
+      "text": "Git status performance: combined branch and status into a single git command, halving the number of git.exe processes"
+    },
+    {
+      "category": "improve",
+      "text": "Added concurrency limiting for batch git status operations to prevent resource exhaustion on Windows"
+    },
+    {
+      "category": "add",
+      "text": "Button to Star on GIthub and Support for Development"
+    },
+    {
+      "category": "fix",
+      "text": "Fixed a race condition in git status fetching that could cause overlapping requests"
+    },
+    {
+      "category": "fix",
+      "text": "Hopeful Fix: Godothub not launching on Some Linux Distros due to Webkit issues"
+    },
+    {
+      "category": "fix",
+      "text": "PR by XRomieo: Add Adhoc Signing to fix Mac OS's App is Damaged popup"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1784658817
+}
