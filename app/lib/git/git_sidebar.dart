@@ -78,6 +78,10 @@ class GitSidebar extends ConsumerStatefulWidget {
   ConsumerState<GitSidebar> createState() => _GitSidebarState();
 }
 
+/// Unsent commit messages by project path. Kept in memory so a draft
+/// survives closing and reopening the sidebar, but not an app restart.
+final Map<String, String> _commitDrafts = {};
+
 class _GitSidebarState extends ConsumerState<GitSidebar> {
   final TextEditingController _message = TextEditingController();
   final TextEditingController _query = TextEditingController();
@@ -120,6 +124,8 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
   @override
   void initState() {
     super.initState();
+    _message.text = _commitDrafts[_path] ?? '';
+    _message.addListener(_saveDraft);
     _message.addListener(_changed);
     _query.addListener(_changed);
     _newBranch.addListener(_changed);
@@ -158,6 +164,15 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
     if (mounted) setState(() {});
   }
 
+  void _saveDraft() {
+    final text = _message.text;
+    if (text.trim().isEmpty) {
+      _commitDrafts.remove(_path);
+    } else {
+      _commitDrafts[_path] = text;
+    }
+  }
+
   void _resetForProject() {
     if (_branchPortal.isShowing) _branchPortal.hide();
     _autoFetch?.cancel();
@@ -177,7 +192,7 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
       _branchProtected = false;
     });
     _newBranch.clear();
-    _message.clear();
+    _message.text = _commitDrafts[_path] ?? '';
     _query.clear();
   }
 
