@@ -1,25 +1,51 @@
 use serde::Serialize;
 
-use crate::error::AppResult;
 use crate::models::{ChangelogEntry, ChangelogNote};
-use crate::persist;
 
+#[cfg(debug_assertions)]
+use crate::persist;
 #[cfg(debug_assertions)]
 use std::path::{Path, PathBuf};
 #[cfg(debug_assertions)]
 use uuid::Uuid;
 
-const EMBEDDED_CHANGELOG: &str = include_str!("../../../changelog.json");
+/// Every file in `changelog/` joined into one JSON array by `build.rs`.
+const EMBEDDED_CHANGELOG: &str = include_str!(concat!(env!("OUT_DIR"), "/changelog.json"));
+
+/// Development builds read and edit the files in the repository directly, so
+/// changes show up without a rebuild.
+#[cfg(debug_assertions)]
+fn changelog_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../changelog")
+}
+
+/// The tag a version is filed under: `v1.4.6` for `v1.4.6 - v1.4.7`.
+#[cfg(debug_assertions)]
+fn version_tag(version: &str) -> &str {
+    version.trim().split(' ').next().unwrap_or_default()
+}
 
 #[cfg(debug_assertions)]
-fn changelog_file() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../changelog.json")
+fn entry_file(version: &str) -> PathBuf {
+    changelog_dir().join(format!("{}.json", version_tag(version)))
+}
+
+#[cfg(debug_assertions)]
+fn read_dir_entries(dir: &Path) -> Option<Vec<ChangelogEntry>> {
+    let mut entries = Vec::new();
+    for item in std::fs::read_dir(dir).ok()? {
+        let path = item.ok()?.path();
+        if path.extension().is_some_and(|ext| ext == "json") {
+            entries.push(persist::read_json_opt::<ChangelogEntry>(&path)?);
+        }
+    }
+    Some(entries)
 }
 
 fn read_entries() -> Vec<ChangelogEntry> {
     #[cfg(debug_assertions)]
     {
-        if let Some(entries) = persist::read_json_opt::<Vec<ChangelogEntry>>(&changelog_file()) {
+        if let Some(entries) = read_dir_entries(&changelog_dir()) {
             return entries;
         }
     }
@@ -27,8 +53,20 @@ fn read_entries() -> Vec<ChangelogEntry> {
 }
 
 #[cfg(debug_assertions)]
-fn write_entries(entries: &Vec<ChangelogEntry>) -> AppResult<()> {
-    persist::write_json(&changelog_file(), entries)
+fn write_entry(entry: &ChangelogEntry) -> Result<(), String> {
+    let mut json = serde_json::to_string_pretty(entry).map_err(|e| e.to_string())?;
+    json.push('\n');
+    persist::write_bytes(&entry_file(&entry.version), json.as_bytes()).map_err(|e| e.to_string())
+}
+
+/// One file per version tag, so a second entry for the same tag is refused.
+#[cfg(debug_assertions)]
+fn ensure_tag_free(entries: &[ChangelogEntry], version: &str, except_id: Option<&str>) -> Result<(), String> {
+    let tag = version_tag(version);
+    if entries.iter().any(|e| version_tag(&e.version) == tag && Some(e.id.as_str()) != except_id) {
+        return Err(format!("There is already a changelog entry for {tag}."));
+    }
+    Ok(())
 }
 
 #[cfg(debug_assertions)]
@@ -79,7 +117,8 @@ pub fn add_changelog_entry(
         if version.is_empty() {
             return Err("Give the entry a version.".into());
         }
-        let mut entries = read_entries();
+        let entries = read_entries();
+        ensure_tag_free(&entries, &version, None)?;
         let entry = ChangelogEntry {
             id: Uuid::new_v4().to_string(),
             version,
@@ -88,8 +127,7 @@ pub fn add_changelog_entry(
             known_issues: clean_known_issues(_known_issues),
             created_at: chrono::Utc::now().timestamp(),
         };
-        entries.push(entry.clone());
-        write_entries(&entries).map_err(|e| e.to_string())?;
+        write_entry(&entry)?;
         Ok(entry)
     }
 }
@@ -112,18 +150,22 @@ pub fn update_changelog_entry(
         if version.is_empty() {
             return Err("Give the entry a version.".into());
         }
-        let mut entries = read_entries();
-        let entry = entries
-            .iter_mut()
+        let entries = read_entries();
+        ensure_tag_free(&entries, &version, Some(&_id))?;
+        let mut entry = entries
+            .into_iter()
             .find(|e| e.id == _id)
             .ok_or("Changelog entry not found")?;
+        let old_file = entry_file(&entry.version);
         entry.version = version;
         entry.date = _date.trim().to_string();
         entry.notes = clean_notes(_notes);
         entry.known_issues = clean_known_issues(_known_issues);
-        let updated = entry.clone();
-        write_entries(&entries).map_err(|e| e.to_string())?;
-        Ok(updated)
+        write_entry(&entry)?;
+        if old_file != entry_file(&entry.version) {
+            std::fs::remove_file(&old_file).map_err(|e| e.to_string())?;
+        }
+        Ok(entry)
     }
 }
 
@@ -135,13 +177,11 @@ pub fn delete_changelog_entry(_id: String) -> Result<(), String> {
 
     #[cfg(debug_assertions)]
     {
-        let mut entries = read_entries();
-        let idx = entries
-            .iter()
-            .position(|e| e.id == _id)
+        let entry = read_entries()
+            .into_iter()
+            .find(|e| e.id == _id)
             .ok_or("Changelog entry not found")?;
-        entries.remove(idx);
-        write_entries(&entries).map_err(|e| e.to_string())
+        std::fs::remove_file(entry_file(&entry.version)).map_err(|e| e.to_string())
     }
 }
 
@@ -407,5 +447,62 @@ pub async fn generate_changelog_draft(_from: String, _to: String) -> Result<Chan
             notes,
             skipped,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn entry(id: &str, version: &str) -> ChangelogEntry {
+        ChangelogEntry {
+            id: id.into(),
+            version: version.into(),
+            date: String::new(),
+            notes: vec![],
+            known_issues: vec![],
+            created_at: 0,
+        }
+    }
+
+    #[test]
+    fn embedded_changelog_matches_the_files() {
+        let embedded: Vec<ChangelogEntry> = serde_json::from_str(EMBEDDED_CHANGELOG).unwrap();
+        let files = read_dir_entries(&changelog_dir()).unwrap();
+        assert!(!embedded.is_empty());
+        let ids = |list: &[ChangelogEntry]| {
+            let mut ids: Vec<String> = list.iter().map(|e| e.id.clone()).collect();
+            ids.sort();
+            ids
+        };
+        assert_eq!(ids(&embedded), ids(&files));
+    }
+
+    #[test]
+    fn every_entry_has_a_unique_id_and_tag() {
+        let entries = read_dir_entries(&changelog_dir()).unwrap();
+        let mut ids: Vec<&str> = entries.iter().map(|e| e.id.as_str()).collect();
+        let mut tags: Vec<&str> = entries.iter().map(|e| version_tag(&e.version)).collect();
+        ids.sort();
+        ids.dedup();
+        tags.sort();
+        tags.dedup();
+        assert_eq!(ids.len(), entries.len());
+        assert_eq!(tags.len(), entries.len());
+    }
+
+    #[test]
+    fn version_tag_uses_the_first_version_of_a_range() {
+        assert_eq!(version_tag(" v1.4.6 - v1.4.7"), "v1.4.6");
+        assert_eq!(entry_file("v1.6.1").file_name().unwrap(), "v1.6.1.json");
+    }
+
+    #[test]
+    fn a_tag_can_only_have_one_entry() {
+        let entries = vec![entry("a", "v1.0.0"), entry("b", "v1.1.0 - v1.1.1")];
+        assert!(ensure_tag_free(&entries, "v1.2.0", None).is_ok());
+        assert!(ensure_tag_free(&entries, "v1.1.0", None).is_err());
+        assert!(ensure_tag_free(&entries, "v1.1.0", Some("b")).is_ok());
+        assert!(ensure_tag_free(&entries, "v1.0.0", Some("b")).is_err());
     }
 }

@@ -1,0 +1,49 @@
+{
+  "id": "df66a54b-2618-44be-a541-c975475d5bce",
+  "version": "v0.2.0",
+  "date": "2026-07-13",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Auto bind projects to their matching Godot versions if you have them downloaded"
+    },
+    {
+      "category": "add",
+      "text": "Folder depth slider to control how deep the scan goes for projects and versions"
+    },
+    {
+      "category": "fix",
+      "text": "Icon colors and hover states weren't updating when you changed the accent color in Settings, now they do"
+    },
+    {
+      "category": "fix",
+      "text": "Uninstalling a version used to leave files behind, now it cleans everything up properly"
+    },
+    {
+      "category": "improve",
+      "text": "Moved the Scan Now button to the top of the scan directories card in Settings so it's easier to find"
+    },
+    {
+      "category": "improve",
+      "text": "Added Scan Now buttons directly in the Projects and Versions list views for quick manual rescans"
+    },
+    {
+      "category": "improve",
+      "text": "Added a fallback download path for Godot versions in case you haven't set one up in Settings yet"
+    },
+    {
+      "category": "improve",
+      "text": "Added a helpful description in Settings explaining the default download path for versions"
+    },
+    {
+      "category": "improve",
+      "text": "Replaced the star system for setting default directories with checkboxes, it's clearer now"
+    },
+    {
+      "category": "improve",
+      "text": "Drag and drop support for reordering projects in the list view using the dnd-kit library"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1783951458
+}

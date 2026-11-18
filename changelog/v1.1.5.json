@@ -1,0 +1,77 @@
+{
+  "id": "78960fd9-e2bf-442e-9876-20822433e267",
+  "version": "v1.1.5",
+  "date": "2026-07-28",
+  "notes": [
+    {
+      "category": "fix",
+      "text": "Bug: Defaults to .NET Version When Not Using .NET and Dropdown  in Project Card was Bugged"
+    },
+    {
+      "category": "add",
+      "text": "'Open' Button alongside the 'Uninstall Button' in the Version Card to open the Godot Launcher of that version directly"
+    },
+    {
+      "category": "improve",
+      "text": "Reduce Github API Usage by reducing pagination and using the 'per_page' parameter to fetch more results in a single request"
+    },
+    {
+      "category": "improve",
+      "text": "Improved the performance of the app by optimizing the code and reducing unnecessary re-renders"
+    },
+    {
+      "category": "add",
+      "text": "(Optional) Github PAT to increase the rate limit for Github API requests"
+    },
+    {
+      "category": "improve",
+      "text": "Removed Export/Import Settings from the Advanced Settings as it was risking exporting Github PAT + it's not really needed."
+    },
+    {
+      "category": "fix",
+      "text": "Linux: 'Open Folder' on a project now falls back through gio, nautilus, dolphin, and thunar if xdg-open fails"
+    },
+    {
+      "category": "fix",
+      "text": "Linux: 'Open in Terminal' in Git sidebar now tries gnome-terminal, kgx, ptyxis, konsole, xfce4-terminal, and respects the $TERMINAL environment variable"
+    },
+    {
+      "category": "improve",
+      "text": "Workspaces now have their own separate installed versions and templates; switching workspaces shows only that workspace's versions and templates, just like projects and categories"
+    },
+    {
+      "category": "fix",
+      "text": "Workspace switching now correctly reloads settings, projects, categories, versions, and templates on switch instead of showing stale data"
+    },
+    {
+      "category": "fix",
+      "text": "Project card checkbox no longer overlaps with the project title when sorting by anything other than categories"
+    },
+    {
+      "category": "improve",
+      "text": "Support button in the titlebar is now wider with a visible label and a colored style; Star on GitHub button moved to its right"
+    },
+    {
+      "category": "add",
+      "text": "Option in Settings → Advanced to disable the Support button in the titlebar"
+    },
+    {
+      "category": "add",
+      "text": "Option in Settings → Advanced to disable the Star on GitHub button in the titlebar"
+    },
+    {
+      "category": "improve",
+      "text": "Custom themed scrollbar across the entire app that follows dark/light mode and accent color"
+    },
+    {
+      "category": "fix",
+      "text": "Scrollbar no longer hides behind the titlebar when scrolled to the top"
+    },
+    {
+      "category": "add",
+      "text": "Option in Settings → Appearance to disable the scrollbar entirely; scroll still works via keyboard, trackpad, or mouse wheel"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1785245589
+}

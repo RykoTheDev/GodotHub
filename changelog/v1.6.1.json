@@ -1,0 +1,29 @@
+{
+  "id": "dd6a3de6-e86e-4162-8cf2-bf66b0decbca",
+  "version": "v1.6.1",
+  "date": "2026-11-17",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Onyx integration: turn it on in Settings > Integrations, then send a finished export to Onyx with \"Upload to Steam with Onyx\" in the Build & Export window. Needs an up-to-date Onyx on Windows or Linux; Settings links to the download if it's missing or out of date"
+    },
+    {
+      "category": "fix",
+      "text": "Linux: the whole window responds to clicks again. Clicks along the bottom and right edges, including the minimize, maximize and close buttons, no longer go through to the window behind GodotHub (#352)"
+    },
+    {
+      "category": "fix",
+      "text": "Linux: the window no longer gets a little bigger every time GodotHub starts (#352)"
+    },
+    {
+      "category": "fix",
+      "text": "Linux: the window can be resized again by dragging its edges and corners (#352)"
+    },
+    {
+      "category": "improve",
+      "text": "Git sidebar: a commit message you've typed but not committed is kept when you close and reopen the sidebar, for each project, until GodotHub restarts"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1794935846
+}

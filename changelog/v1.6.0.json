@@ -1,0 +1,153 @@
+{
+  "id": "e386f782-cca0-439a-8bc5-cff8e6687076",
+  "version": "v1.6.0",
+  "date": "2026-11-17",
+  "notes": [
+    {
+      "category": "add",
+      "text": "A welcome screen on the first start after updating from GodotHub 1.5 shows what changed and how many projects, workspaces, templates and vault items came along"
+    },
+    {
+      "category": "add",
+      "text": "In-app updates show a log of every file as it downloads and installs, and a Restart to apply button appears in the sidebar once an update is ready"
+    },
+    {
+      "category": "add",
+      "text": "Asset Store: open any asset for its description, screenshots, releases and links, and see the files inside it before you install"
+    },
+    {
+      "category": "add",
+      "text": "Asset Store: save assets with the star to find them again under Saved, and hide the ones you're not interested in (show them again from Hidden)"
+    },
+    {
+      "category": "add",
+      "text": "Asset Store: addons you already installed show which projects they're in, with a badge and a one-click update when a newer version is out"
+    },
+    {
+      "category": "add",
+      "text": "Asset Store: install an addon into several projects at once"
+    },
+    {
+      "category": "add",
+      "text": "Asset Store: templates from the Godot Asset Library now have their own section, with an update check for templates you installed from it and an option to hide installed ones"
+    },
+    {
+      "category": "add",
+      "text": "Kanban columns can be resized by dragging, and the width is remembered"
+    },
+    {
+      "category": "add",
+      "text": "Time tracking is now stored inside each project's .godothub folder, so a project's history stays with its folder, even when it's added to another workspace. Existing history is moved over on its own, and copies of a project start from zero"
+    },
+    {
+      "category": "add",
+      "text": "Project Doctor can apply every safe fix at once with Fix all"
+    },
+    {
+      "category": "add",
+      "text": "A diagnostics log on your computer records errors, crashes and failed updates, with tokens, passwords, emails and private paths removed. It never leaves your computer unless you send a bug report"
+    },
+    {
+      "category": "add",
+      "text": "Windows: after a crash, the next start offers to open a bug report that is already filled in"
+    },
+    {
+      "category": "add",
+      "text": "Redesigned bug report window with steps to reproduce, what you expected, and a preview of exactly what will be sent, including recent log lines you can leave out"
+    },
+    {
+      "category": "add",
+      "text": "High contrast colors while Windows high contrast is turned on"
+    },
+    {
+      "category": "add",
+      "text": "Settings: a separate card style for the list view, and Credits → Open Source Licenses lists every library GodotHub uses"
+    },
+    {
+      "category": "add",
+      "text": "Committing to a protected branch now asks for confirmation first"
+    },
+    {
+      "category": "fix",
+      "text": "Projects on an unplugged drive or an offline network share stay in the library, marked as unavailable, instead of disappearing. They come back as soon as the folder is reachable again"
+    },
+    {
+      "category": "fix",
+      "text": "Windows: project folders with very long paths now work"
+    },
+    {
+      "category": "fix",
+      "text": "Linux: closing the window with Minimize to tray on no longer hides GodotHub on desktops that have no tray"
+    },
+    {
+      "category": "fix",
+      "text": "macOS: updating a copy opened from Downloads now tells you to move GodotHub to Applications instead of failing"
+    },
+    {
+      "category": "improve",
+      "text": "Smoother scrolling and dragging, with no stutter the first time an effect is drawn"
+    },
+    {
+      "category": "improve",
+      "text": "Updates are checked more strictly before they install: a signed package must match the version it claims, and oversized or unsafe archives are refused"
+    },
+    {
+      "category": "improve",
+      "text": "Windows: updates unpack inside GodotHub's own folder instead of the system Temp folder, and the launcher carries the app's version and publisher, so antivirus tools are less likely to flag them"
+    },
+    {
+      "category": "improve",
+      "text": "Windows: better accessibility and keyboard input"
+    },
+    {
+      "category": "improve",
+      "text": "Folder and file paths can be typed or pasted everywhere, with a clear message when a path doesn't exist, isn't a folder or isn't the right file type"
+    },
+    {
+      "category": "improve",
+      "text": "New Project, Duplicate and Clone show the exact folder they will create and explain what's missing before you can continue"
+    },
+    {
+      "category": "improve",
+      "text": "Branch names, category names and folder names are checked as you type"
+    },
+    {
+      "category": "improve",
+      "text": "Every window now shares one layout, with clearer descriptions, and the tag manager was rebuilt"
+    },
+    {
+      "category": "improve",
+      "text": "Refreshed Asset Store, template and news cards, a featured latest news post, grids that fill each row, and a full-width filter bar"
+    },
+    {
+      "category": "improve",
+      "text": "A simpler Storage view that shows at a glance how much space can be freed"
+    },
+    {
+      "category": "improve",
+      "text": "Versions: redesigned version cards, separate Installed and Available sections, a badge when a newer version is available, and a direct way to add a GitHub token when GitHub limits release checks"
+    },
+    {
+      "category": "improve",
+      "text": "A failed Godot download shows the error details and a button to report it"
+    },
+    {
+      "category": "improve",
+      "text": "Clear loading, empty and error states with a retry across Projects, Versions, Templates, the Vault, the Asset Store, News and Settings"
+    },
+    {
+      "category": "improve",
+      "text": "A taller title bar and consistent sentence-case labels throughout the app"
+    },
+    {
+      "category": "improve",
+      "text": "Removed the card tilt effect"
+    },
+    {
+      "category": "improve",
+      "text": "The Customize view button and Project Next Steps are no longer experimental: both are always on, and the Experimental section is gone from Settings"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1794867964
+}

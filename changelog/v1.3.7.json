@@ -1,0 +1,37 @@
+{
+  "id": "0a07a858-5251-48dd-8844-f928dfc48af3",
+  "version": "v1.3.7",
+  "date": "2026-08-21",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Credits Section in the Settings"
+    },
+    {
+      "category": "improve",
+      "text": "Removed Onboarding Tips"
+    },
+    {
+      "category": "fix",
+      "text": "Git's Pathspec errors"
+    },
+    {
+      "category": "fix",
+      "text": "Fixed Time tracker adding fake hours to the projects"
+    },
+    {
+      "category": "improve",
+      "text": "Brought back categories in New UI"
+    },
+    {
+      "category": "add",
+      "text": "New Popup for existing users to shift to New UI, in Classic UI"
+    },
+    {
+      "category": "add",
+      "text": "Contributors' names in Credit screen with their PRs displayed"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1787320372
+}

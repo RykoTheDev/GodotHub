@@ -1,0 +1,37 @@
+{
+  "id": "2c62897f-d154-4a93-9bbc-0c32abff06cb",
+  "version": "v1.3.8",
+  "date": "2026-08-23",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Cloud Sync via Github Gist to backup your App Data and fetch it whenever you want"
+    },
+    {
+      "category": "improve",
+      "text": "Re-Add Drag N Drop in Categories Sorting"
+    },
+    {
+      "category": "improve",
+      "text": "Add Launch Arguements for Projects to New Interface"
+    },
+    {
+      "category": "fix",
+      "text": "Some UI Glitches"
+    },
+    {
+      "category": "improve",
+      "text": "Tooltip component Revamped"
+    },
+    {
+      "category": "add",
+      "text": "Japanese Localization PR by shiena"
+    },
+    {
+      "category": "improve",
+      "text": "Updates on Arabic Localization PR by Spy-B"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1787518890
+}

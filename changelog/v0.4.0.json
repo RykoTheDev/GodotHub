@@ -1,0 +1,81 @@
+{
+  "id": "b6915081-bf5a-4ce4-9400-c3e8af6203c0",
+  "version": "v0.4.0",
+  "date": "2026-07-20",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Command Palette for Quick Access across the App."
+    },
+    {
+      "category": "add",
+      "text": "Drag/Drop Import for Projects and Versions"
+    },
+    {
+      "category": "add",
+      "text": "Feeling lucky button to Appearance settings to randomly change the accent and background colors.. u might be feeling lucky?"
+    },
+    {
+      "category": "add",
+      "text": "Launch Arguments for Projects, Right Click Context menu to access it"
+    },
+    {
+      "category": "add",
+      "text": "Direct Project Cloning and Importing from Github"
+    },
+    {
+      "category": "add",
+      "text": "Git Integration with Commits History, Branches, Fetch, Pull, Commit, Push, and more"
+    },
+    {
+      "category": "add",
+      "text": "Report a bug section for bug reporting and feedback"
+    },
+    {
+      "category": "add",
+      "text": "Custom Icons when creating New Project"
+    },
+    {
+      "category": "improve",
+      "text": "Light Mode accent and background colors can be changed now"
+    },
+    {
+      "category": "add",
+      "text": "Project Size Chart Modal that can be accessed via context menu right click on the Project Card"
+    },
+    {
+      "category": "improve",
+      "text": "Removed Dragging from Pinned Projects and instead Arrows to move up and down"
+    },
+    {
+      "category": "add",
+      "text": "Recent Projects in the sidebar, Quantity can be controlled in settings"
+    },
+    {
+      "category": "add",
+      "text": "Search bar in settings"
+    },
+    {
+      "category": "add",
+      "text": "Export/Import option in Advanced menu of Settings"
+    },
+    {
+      "category": "improve",
+      "text": "Changed Settings UI / UX"
+    },
+    {
+      "category": "add",
+      "text": "Launch Modal when launching a project"
+    },
+    {
+      "category": "add",
+      "text": "Custom Templates for your Project"
+    },
+    {
+      "category": "add",
+      "text": "Project Size Chart Modal that can be accessed via context menu right click on the Project Card"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1784205220
+}

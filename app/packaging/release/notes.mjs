@@ -1,8 +1,9 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 const tag = process.env.RELEASE_TAG
 const repo = process.env.REPO
-const changelogPath = process.env.CHANGELOG ?? 'changelog.json'
+const changelogDir = process.env.CHANGELOG_DIR ?? 'changelog'
 const allowMissing = process.env.ALLOW_MISSING_NOTES === 'true'
 const previous = process.env.PREVIOUS_TAG
 if (!tag || !repo) throw new Error('RELEASE_TAG and REPO are required')
@@ -12,10 +13,9 @@ const lastTauri = 'v1.5.9'
 
 const version = tag.replace(/^v/, '')
 const slug = 'GodotHub'
-const entries = JSON.parse(readFileSync(changelogPath, 'utf8'))
-const tagOf = (e) => (e.version || '').trim().split(' ')[0]
-const entry = entries.find((e) => tagOf(e) === tag)
-if (!entry && !allowMissing) throw new Error(`no entry for ${tag} in ${changelogPath}`)
+const entryPath = join(changelogDir, `${tag}.json`)
+const entry = existsSync(entryPath) ? JSON.parse(readFileSync(entryPath, 'utf8')) : null
+if (!entry && !allowMissing) throw new Error(`no changelog entry for ${tag}: ${entryPath} is missing`)
 
 const blocks = []
 blocks.push(`## What's new in ${tag}`)

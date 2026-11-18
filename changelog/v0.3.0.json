@@ -1,0 +1,85 @@
+{
+  "id": "1bc5f8c4-4f6b-4249-87ba-56744cf5bbc1",
+  "version": "v0.3.0",
+  "date": "2026-07-15",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Button in settings to wipe app data and start fresh, useful if something breaks or you just want a clean slate"
+    },
+    {
+      "category": "add",
+      "text": "Import versions the same way you import projects, with a dedicated import button"
+    },
+    {
+      "category": "add",
+      "text": "Categorization for versions in the Versions view"
+    },
+    {
+      "category": "add",
+      "text": "Filtering options for versions in the Versions view"
+    },
+    {
+      "category": "add",
+      "text": "Pause, resume, and cancel downloads for versions"
+    },
+    {
+      "category": "add",
+      "text": "Progress popup when scanning or importing"
+    },
+    {
+      "category": "add",
+      "text": "Categories collapse and expand in the Projects View"
+    },
+    {
+      "category": "add",
+      "text": "Right Click context menu for projects and versions with options to open, rename, delete, and more"
+    },
+    {
+      "category": "add",
+      "text": "Pin Projects to the sidebar for quick access anywhere in the app"
+    },
+    {
+      "category": "add",
+      "text": "'Auto-Scan on Startup' Settings option"
+    },
+    {
+      "category": "fix",
+      "text": "If you minimize to system tray and try opening from the taskbar, it now brings back the existing instance instead of spawning a new one"
+    },
+    {
+      "category": "fix",
+      "text": "Auto scan for projects and versions now runs right after onboarding"
+    },
+    {
+      "category": "fix",
+      "text": "Fixed naming inconsistencies between imported and installed versions, they now show up the same way in the list"
+    },
+    {
+      "category": "fix",
+      "text": "Imported versions were not being recognized as installed, so the Available versions list still showed Install instead of Installed, that's fixed now"
+    },
+    {
+      "category": "fix",
+      "text": "If you delete an imported version from your file system, it now disappears from the list view automatically"
+    },
+    {
+      "category": "fix",
+      "text": "Uninstalling an imported version now removes the console build along with it, no more leftover files"
+    },
+    {
+      "category": "fix",
+      "text": "Download progress used to reset and show Install again when switching views, now it keeps your progress and shows the right state"
+    },
+    {
+      "category": "improve",
+      "text": "Re-did the Settings Page layout"
+    },
+    {
+      "category": "improve",
+      "text": "Tooltip UI for overall App."
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1784026943
+}

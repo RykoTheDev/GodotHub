@@ -1,0 +1,113 @@
+{
+  "id": "b1fb6f4f-40e8-4ff7-b85f-c9be6fd6ac67",
+  "version": "v1.3.6",
+  "date": "2026-08-20",
+  "notes": [
+    {
+      "category": "add",
+      "text": "Changelog badge with shine animation on sidebar when new entries are added"
+    },
+    {
+      "category": "add",
+      "text": "Category pills on project cards showing the assigned category with a colored dot"
+    },
+    {
+      "category": "add",
+      "text": "Category filter dropdown in the Projects toolbar to filter by category"
+    },
+    {
+      "category": "add",
+      "text": "Click category pill on project card to change its category from a dropdown"
+    },
+    {
+      "category": "improve",
+      "text": "Default project sort changed to Recent instead of Categories"
+    },
+    {
+      "category": "improve",
+      "text": "Re-did Git from scratch with a new sidebar that slides in from the right instead of an overlay"
+    },
+    {
+      "category": "add",
+      "text": "Time tracking for individual projects"
+    },
+    {
+      "category": "add",
+      "text": "Dashboard view for you and your projects"
+    },
+    {
+      "category": "add",
+      "text": "Export and import time tracking data"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: revamped titlebar with language menu, running projects chip and task tray"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: project cards revamp plus a new non-card layout"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: Settings view refactored to be more UX friendly"
+    },
+    {
+      "category": "improve",
+      "text": "Major performance and code-quality refactor across the Rust backend"
+    },
+    {
+      "category": "improve",
+      "text": "README: star history and supported languages sections, plus a new Contributing.md"
+    },
+    {
+      "category": "fix",
+      "text": "Fixed several edge cases in the Git authentication flow"
+    },
+    {
+      "category": "fix",
+      "text": "Portable .exe installs now show a clear 'manual update required' screen with a link to the latest GitHub release instead of failing silently"
+    },
+    {
+      "category": "add",
+      "text": "PR by Spy-B: Continue adding the Arabic translation"
+    },
+    {
+      "category": "add",
+      "text": "PR by Edugamen: Start localizing the Spanish Language"
+    },
+    {
+      "category": "add",
+      "text": "Discord RPC support"
+    },
+    {
+      "category": "improve",
+      "text": "Modals design unified across the app with a new header and footer design"
+    },
+    {
+      "category": "improve",
+      "text": "New UI is now set as the default, with an option to switch back to the old UI in Settings → Appearance"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: Add Asset Store"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: Add Templates view"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: Add Godot News"
+    },
+    {
+      "category": "improve",
+      "text": "New UI: Add Settings, Changelog and Updates from Dev view"
+    },
+    {
+      "category": "improve",
+      "text": "Add Project Icon Scan Depth setting"
+    }
+  ],
+  "known_issues": [],
+  "created_at": 1787151416
+}

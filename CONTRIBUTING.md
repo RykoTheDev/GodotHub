@@ -262,7 +262,8 @@ godothub/
 │   ├── docs/                         # Bridge release runbook, environment checks
 │   └── fixtures/                     # Old-version data used by the Rust tests
 ├── docs/migration/FAQ.md             # User FAQ (linked from release notes, keep the path)
-├── changelog.json                    # Release notes source for the in-app changelog and releases
+├── changelog/                        # One file per release (v1.6.1.json, ...): release notes
+│                                     #   for the in-app changelog and GitHub releases
 ├── target/                           # Rust build output (not committed)
 ├── .githooks/                        # pre-commit & commit-msg hooks
 └── .github/                          # Workflows (Flutter CI, release, update paths, winget)
@@ -800,7 +801,7 @@ Bypass a hook with `git commit --no-verify` only when you know what you are doin
 
 Releases are cut by maintainers by pushing a `v*` tag. The release workflow
 (`release.yml`) builds and signs the packages for every platform, writes the
-release notes from `changelog.json` and the update feed, and creates a draft
+release notes from `changelog/<tag>.json` and the update feed, and creates a draft
 release. A maintainer publishes the draft by hand, which also starts the winget
 update (`winget.yml`). See
 [dev/docs/BRIDGE_RELEASE.md](dev/docs/BRIDGE_RELEASE.md) for the checklist,
