@@ -2312,6 +2312,10 @@
       {
         "category": "fix",
         "text": "Linux: the window can be resized again by dragging its edges and corners (#352)"
+      },
+      {
+        "category": "improve",
+        "text": "Git sidebar: a commit message you've typed but not committed is kept when you close and reopen the sidebar, for each project, until GodotHub restarts"
       }
     ],
     "known_issues": [],
