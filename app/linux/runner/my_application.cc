@@ -25,17 +25,6 @@ static void my_application_activate(GApplication* application) {
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
 
-  // With the custom title bar, nativeapi keeps a shadow gutter around the content
-  // that takes no input. It only clears that gutter's background when the window
-  // has an RGBA visual; otherwise GTK paints it opaque, so the window looks a few
-  // pixels wider than the area that takes clicks and resize drags (#352). The
-  // visual has to be set before the window is realized.
-  GdkScreen* rgba_screen = gtk_window_get_screen(window);
-  GdkVisual* rgba_visual = gdk_screen_get_rgba_visual(rgba_screen);
-  if (rgba_visual != nullptr && gdk_screen_is_composited(rgba_screen)) {
-    gtk_widget_set_visual(GTK_WIDGET(window), rgba_visual);
-  }
-
   // Use a header bar when running in GNOME as this is the common style used
   // by applications and is the setup most users will be using (e.g. Ubuntu
   // desktop).
