@@ -1,5 +1,7 @@
 #include "my_application.h"
 
+#include <cstdlib>
+
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
@@ -13,6 +15,65 @@ struct _MyApplication {
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
+
+// When Flutter cannot create its OpenGL context nothing is drawn: the window stays black and
+// the app looks hung (#371). Flutter only logs a warning for it, so watch the log for that
+// warning and tell the user what happened and what to try instead.
+static const char* const kGlFailureMarkers[] = {
+    "Failed to create OpenGL context",
+    "Failed to create EGL context",
+};
+
+static const char kGlFailureAdvice[] =
+    "GodotHub could not create the OpenGL context it needs to draw its window. This usually "
+    "comes from the graphics driver or the compositor, not from GodotHub.\n\n"
+    "Try starting it from a terminal with one of these:\n"
+    "  GDK_BACKEND=x11 godothub\n"
+    "  LIBGL_ALWAYS_SOFTWARE=1 godothub\n"
+    "  GDK_GL=gles godothub\n\n"
+    "Whether one of them works or none do, please open an issue at "
+    "github.com/Rykode/GodotHub with your distro, desktop and GPU.";
+
+static gint gl_failure_reported = 0;
+
+static gboolean show_gl_failure_dialog(gpointer data) {
+  g_autofree gchar* details = static_cast<gchar*>(data);
+  GtkWidget* dialog = gtk_message_dialog_new(nullptr, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR,
+                                             GTK_BUTTONS_NONE, "%s",
+                                             "GodotHub couldn't start its graphics");
+  gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s\n\nDetails: %s",
+                                           kGlFailureAdvice, details);
+  gtk_dialog_add_button(GTK_DIALOG(dialog), "Quit", GTK_RESPONSE_CLOSE);
+  gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  // The window behind it is black and cannot be used, so end the whole app.
+  exit(1);
+  return G_SOURCE_REMOVE;
+}
+
+// The log can come from any thread. Only the first matching warning is acted on.
+static GLogWriterOutput gl_failure_log_writer(GLogLevelFlags log_level, const GLogField* fields,
+                                              gsize n_fields, gpointer user_data) {
+  if (log_level & G_LOG_LEVEL_WARNING) {
+    for (gsize i = 0; i < n_fields; i++) {
+      if (g_strcmp0(fields[i].key, "MESSAGE") != 0 || fields[i].value == nullptr) continue;
+      const char* message = static_cast<const char*>(fields[i].value);
+      for (const char* marker : kGlFailureMarkers) {
+        if (g_strstr_len(message, fields[i].length, marker) != nullptr &&
+            g_atomic_int_compare_and_exchange(&gl_failure_reported, 0, 1)) {
+          g_printerr("\nGodotHub: %s\n\n", kGlFailureAdvice);
+          // A few seconds in, once the app has set up its own window: native window code
+          // lists every top-level window, and an earlier dialog would be resized as the app's.
+          g_timeout_add_seconds(
+              3, show_gl_failure_dialog,
+              fields[i].length < 0 ? g_strdup(message)
+                                   : g_strndup(message, static_cast<gsize>(fields[i].length)));
+        }
+      }
+    }
+  }
+  return g_log_writer_default(log_level, fields, n_fields, user_data);
+}
 
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
@@ -161,6 +222,8 @@ MyApplication* my_application_new() {
   // corresponding .desktop file. This ensures better integration by allowing
   // the application to be recognized beyond its binary name.
   g_set_prgname(APPLICATION_ID);
+
+  g_log_set_writer_func(gl_failure_log_writer, nullptr, nullptr);
 
   return MY_APPLICATION(g_object_new(my_application_get_type(),
                                      "application-id", APPLICATION_ID, "flags",
