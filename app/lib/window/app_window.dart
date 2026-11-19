@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:nativeapi/nativeapi.dart' show DisplayManager;
@@ -73,6 +74,10 @@ class AppWindow {
   bool Function()? keepAliveOnClose;
   bool? startedWithOsDecorations;
 
+  /// False while the window is still settling to its restored size on Linux; the app
+  /// stays invisible until then, so it appears once, at the right size.
+  static final ValueNotifier<bool> settled = ValueNotifier(true);
+
   static AppWindow? _instance;
 
   static AppWindow get instance => _instance!;
@@ -112,7 +117,10 @@ class AppWindow {
       window.center();
     }
     if (restored != null && !(saved?.maximized ?? false)) {
-      app._holdRestoredSize(restored.size);
+      // Wayland always composites, so the window can be left invisible while it settles.
+      // The OS frame would show over an empty window, and without a compositor it would be black.
+      final hideWhileSettling = !useOsDecorations && Platform.environment.containsKey('WAYLAND_DISPLAY');
+      app._holdRestoredSize(restored.size, hideWindow: hideWhileSettling);
     }
     app._normalBounds = window.bounds.toRect();
     if (saved?.maximized ?? false) {
@@ -139,10 +147,11 @@ class AppWindow {
   /// On Linux the compositor and the window's shadow gutter resize a window again
   /// after it is mapped, so the restored size does not stick (#352). Until the size
   /// has stopped changing, put the restored size back whenever it was changed.
-  void _holdRestoredSize(Size size) {
+  void _holdRestoredSize(Size size, {required bool hideWindow}) {
     if (!Platform.isLinux) return;
     _restoredSize = size;
     _restoreRetries = 3;
+    if (hideWindow) settled.value = false;
     // Only a failsafe: the settle clock proper starts once the window is shown, because
     // the compositor resizes it after it maps, however long the app took to start.
     _hardStopTimer = Timer(const Duration(seconds: 10), _releaseRestoredSize);
@@ -161,6 +170,7 @@ class AppWindow {
     _settleTimer?.cancel();
     _hardStopTimer?.cancel();
     _restoredSize = null;
+    settled.value = true;
   }
 
   /// True when the window was put back to the restored size.
