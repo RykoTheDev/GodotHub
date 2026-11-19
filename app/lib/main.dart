@@ -175,7 +175,17 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
               child: WindowResizeEdges(
                 enabled: Platform.isLinux && !windowUsesOsDecorations(current),
                 window: ref.watch(titleBarWindowProvider),
-                child: GhKeyboardShortcuts(child: child!),
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: AppWindow.settled,
+                  builder: (context, settled, content) => Opacity(
+                    opacity: settled ? 1 : 0,
+                    child: IgnorePointer(
+                      ignoring: !settled,
+                      child: ExcludeFocus(excluding: !settled, child: content!),
+                    ),
+                  ),
+                  child: GhKeyboardShortcuts(child: child!),
+                ),
               ),
             ),
           ),
