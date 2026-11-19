@@ -24,6 +24,10 @@
       "text": "Linux: resizing didnt persist, now it does (#352)"
     },
     {
+      "category": "fix",
+      "text": "Linux: when GodotHub can't set up its graphics, it now says so and suggests what to try, instead of leaving a black window that can't be closed (#371)"
+    },
+    {
       "category": "improve",
       "text": "Git sidebar: a commit message you've typed but not committed is kept when you close and reopen the sidebar, until GodotHub is restarted"
     }
