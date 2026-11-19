@@ -12,47 +12,47 @@
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/dashboard-view.png" alt="Dashboard View" width="400">
-      <br><strong>Dashboard</strong>
+      <img src="assets/projects-view.png" alt="Projects" width="100%">
+      <br><strong>Projects, Kanban board</strong>
     </td>
     <td width="50%" align="center">
-      <img src="assets/projects-view.png" alt="Projects View" width="400">
-      <br><strong>Projects</strong>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <img src="assets/versions-view.png" alt="Versions View" width="400">
+      <img src="assets/versions-view.png" alt="Versions" width="100%">
       <br><strong>Versions</strong>
     </td>
+  </tr>
+  <tr>
     <td width="50%" align="center">
-      <img src="assets/templates-view.png" alt="Templates View" width="400">
+      <img src="assets/templates-view.png" alt="Templates" width="100%">
       <br><strong>Templates</strong>
     </td>
-  </tr>
-  <tr>
     <td width="50%" align="center">
-      <img src="assets/asset-store-view.png" alt="Asset Store View" width="400">
+      <img src="assets/asset-store-view.png" alt="Asset Store" width="100%">
       <br><strong>Asset Store</strong>
     </td>
+  </tr>
+  <tr>
     <td width="50%" align="center">
-      <img src="assets/git-view.png" alt="Git Integration" width="400">
-      <br><strong>Git Integration</strong>
+      <img src="assets/git-view.png" alt="Git Integration" width="100%">
+      <br><strong>Git panel</strong>
+    </td>
+    <td width="50%" align="center">
+      <img src="assets/doctor-view.png" alt="Project Doctor" width="100%">
+      <br><strong>Project Doctor</strong>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/settings-view.png" alt="Settings & Appearance" width="400">
-      <br><strong>Appearance & Settings</strong>
+      <img src="assets/news-view.png" alt="Godot News" width="100%">
+      <br><strong>News feed</strong>
     </td>
     <td width="50%" align="center">
-      <img src="assets/news-view.png" alt="News Feed" width="400">
-      <br><strong>News Feed</strong>
+      <img src="assets/settings-view.png" alt="Settings & Appearance" width="100%">
+      <br><strong>Appearance & Settings</strong>
     </td>
   </tr>
 </table>
 
-<p align="center"><sub>Screenshots show the dark theme with the default accent color. Everything shown is customizable.</sub></p>
+<p align="center"><sub>Screenshots show the dark theme with the default accent color and sample data. Everything shown is customizable.</sub></p>
 
 ---
 
