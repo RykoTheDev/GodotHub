@@ -3,7 +3,7 @@
     <img width="800" height="340" alt="cover" src="https://github.com/user-attachments/assets/29ea1efa-e977-4417-9da6-69c81104fc97" />
   </a>
   <a href="https://patreon.com/TheRyko">
-  <img width="800" height="140" alt="Frame 5" src="https://github.com/user-attachments/assets/7f45b594-7a2f-4bc4-8785-e0c1e3cfdbce" />
+  <img width="800" height="140" alt="Frame 5" src="https://github.com/user-attachments/assets/c68e611c-1cad-4883-8406-4bc886144af6" />
   </a>
 </p>
 
