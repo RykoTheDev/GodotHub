@@ -2,10 +2,8 @@
   <a href="https://ryko.is-a.dev/godothub">
     <img width="800" height="340" alt="cover" src="https://github.com/user-attachments/assets/29ea1efa-e977-4417-9da6-69c81104fc97" />
   </a>
-</p>
-<p align="center">
   <a href="https://patreon.com/TheRyko">
-  <img width="300" height="70" alt="patreon-badge" src="https://github.com/user-attachments/assets/931aa0ac-f46b-4155-81cd-3615ed55122b" />
+  <img width="800" height="140" alt="Frame 5" src="https://github.com/user-attachments/assets/7f45b594-7a2f-4bc4-8785-e0c1e3cfdbce" />
   </a>
 </p>
 
@@ -296,13 +294,9 @@ GodotHub is a Flutter desktop app (since v1.6.0) built on a shared Rust core. Re
 ---
 
 ## AI Disclosure
-
-Some parts of this codebase have been restructured and had small bugs fixed with the help of [DeepSeek AI](https://chat.deepseek.com/). I review and test every change myself before merging anything. The whole codebase was written by a freshly baked human from scratch.
-
-For anyone who doesn't read commits: Copilot is **not** used here. It accidentally got added to the collaborators list after fixing a PR that literally just removed a space. I've since disabled it, and it has no authority over this repo, including reviews.
-As for Codebuff AI, I never even had a subscription to it. I was just testing it out before realizing that, and it somehow snuck into a commit message.
-
-Contributors can use AI during development, but every PR is manually reviewed before I merge it. I use AI myself for assistance, but I'm strictly against "vibe-coding" and don't allow unchecked AI output. I can't speak for how contributors use AI, nor am I responsible for it, as long as the PR does its job correctly.
+<p align="center">
+<img width="800" height="140" alt="Frame 9" src="https://github.com/user-attachments/assets/99e0e858-4ef5-4652-9d86-fe1b8da45de3" />
+</p>
 
 ---
 
