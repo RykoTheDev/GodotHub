@@ -32,8 +32,10 @@ static void my_application_activate(GApplication* application) {
   // visual has to be set before the window is realized.
   GdkScreen* rgba_screen = gtk_window_get_screen(window);
   GdkVisual* rgba_visual = gdk_screen_get_rgba_visual(rgba_screen);
+  gboolean translucent = FALSE;
   if (rgba_visual != nullptr && gdk_screen_is_composited(rgba_screen)) {
     gtk_widget_set_visual(GTK_WIDGET(window), rgba_visual);
+    translucent = TRUE;
   }
 
   // Use a header bar when running in GNOME as this is the common style used
@@ -77,9 +79,10 @@ static void my_application_activate(GApplication* application) {
 
   FlView* view = fl_view_new(project);
   GdkRGBA background_color;
-  // Background defaults to black, override it here if necessary, e.g. #00000000
-  // for transparent.
-  gdk_rgba_parse(&background_color, "#000000");
+  // Black unless the window can be translucent. Then it is transparent, so the app
+  // can stay invisible while the window settles to its restored size (#352); the app
+  // paints its own opaque background once it is shown.
+  gdk_rgba_parse(&background_color, translucent ? "#00000000" : "#000000");
   fl_view_set_background_color(view, &background_color);
   gtk_widget_show(GTK_WIDGET(view));
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
