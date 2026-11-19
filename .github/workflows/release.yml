@@ -302,3 +302,49 @@ jobs:
           gh release create "$TAG" --repo "$REPO" --verify-tag --draft \
             --title "GodotHub $TAG" --notes-file release/notes.md \
             dist/* release/latest-v2.json release/latest.json
+
+  bug-report-version:
+    needs: [prepare, publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Add the version to the bug report template
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, re
+          path = ".github/ISSUE_TEMPLATE/bug_report.yaml"
+          version = os.environ["VERSION"]
+          text = open(path, encoding="utf-8", newline="").read()
+          eol = "\r\n" if "\r\n" in text else "\n"
+          m = re.search(r"(    id: version\r?\n(?:.*\r?\n)*?      options:\r?\n)((?:        - .*\r?\n)+)(      default: )\d+(\r?\n)", text)
+          if not m:
+              raise SystemExit("::error::version dropdown not found in bug_report.yaml")
+          options = m.group(2).splitlines()
+          if f"        - {version}" in options:
+              print(f"{version} is already listed")
+              raise SystemExit(0)
+          options.append(f"        - {version}")
+          new = m.group(1) + "".join(o + eol for o in options) + m.group(3) + str(len(options) - 1) + m.group(4)
+          open(path, "w", encoding="utf-8", newline="").write(text[:m.start()] + new + text[m.end():])
+          PY
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Add $VERSION to the bug report version list"
+          git pull --rebase origin main
+          git push origin HEAD:main
