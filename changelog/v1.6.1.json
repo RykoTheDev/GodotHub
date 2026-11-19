@@ -1,7 +1,7 @@
 {
   "id": "dd6a3de6-e86e-4162-8cf2-bf66b0decbca",
   "version": "v1.6.1",
-  "date": "2026-11-17",
+  "date": "2026-11-20",
   "notes": [
     {
       "category": "add",
@@ -20,10 +20,16 @@
       "text": "Linux: the window can be resized again by dragging its edges and corners (#352)"
     },
     {
+      "category": "fix",
+      "text": "Linux: resizing didnt persist, now it does (#352)"
+    },
+    {
       "category": "improve",
-      "text": "Git sidebar: a commit message you've typed but not committed is kept when you close and reopen the sidebar, for each project, until GodotHub restarts"
+      "text": "Git sidebar: a commit message you've typed but not committed is kept when you close and reopen the sidebar, until GodotHub is restarted"
     }
   ],
-  "known_issues": [],
+  "known_issues": [
+    "Linux: When launching GodotHub, App itself may take a second to appear due to the workaround on fixing resize issue."
+  ],
   "created_at": 1794935846
 }
