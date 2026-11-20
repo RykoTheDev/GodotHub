@@ -1,5 +1,7 @@
 #include "my_application.h"
 
+#include <unistd.h>
+
 #include <cstdlib>
 
 #include <flutter_linux/flutter_linux.h>
@@ -18,7 +20,8 @@ G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
 // When Flutter cannot create its OpenGL context nothing is drawn: the window stays black and
 // the app looks hung (#371). Flutter only logs a warning for it, so watch the log for that
-// warning and tell the user what happened and what to try instead.
+// warning. Under Wayland, start again through XWayland, which worked where Wayland failed;
+// otherwise tell the user what happened and what to try instead.
 static const char* const kGlFailureMarkers[] = {
     "Failed to create OpenGL context",
     "Failed to create EGL context",
@@ -29,12 +32,40 @@ static const char kGlFailureAdvice[] =
     "comes from the graphics driver or the compositor, not from GodotHub.\n\n"
     "Try starting it from a terminal with one of these:\n"
     "  GDK_BACKEND=x11 godothub\n"
-    "  LIBGL_ALWAYS_SOFTWARE=1 godothub\n"
-    "  GDK_GL=gles godothub\n\n"
+    "  LIBGL_ALWAYS_SOFTWARE=1 godothub\n\n"
     "Whether one of them works or none do, please open an issue at "
     "github.com/Rykode/GodotHub with your distro, desktop and GPU.";
 
 static gint gl_failure_reported = 0;
+
+// The arguments the app was started with, to start it again with the same ones.
+static char** launch_arguments = nullptr;
+
+// GDK uses Wayland when WAYLAND_DISPLAY is set and nothing says otherwise. XWayland is there
+// when DISPLAY is set. A user's own GDK_BACKEND is left alone, and so is a second failure.
+static gboolean can_retry_on_x11() {
+  return g_getenv("WAYLAND_DISPLAY") != nullptr && g_getenv("DISPLAY") != nullptr &&
+         g_getenv("GDK_BACKEND") == nullptr && g_getenv("GODOTHUB_GL_RETRIED") == nullptr;
+}
+
+// Replaces this process, so no old window or lock outlives it. If that fails the dialog
+// below still comes up.
+static gboolean retry_on_x11(gpointer) {
+  g_autofree gchar* exe = g_file_read_link("/proc/self/exe", nullptr);
+  if (exe == nullptr) return G_SOURCE_REMOVE;
+  g_autoptr(GPtrArray) argv = g_ptr_array_new();
+  g_ptr_array_add(argv, exe);
+  for (gsize i = 0; launch_arguments != nullptr && launch_arguments[i] != nullptr; i++) {
+    g_ptr_array_add(argv, launch_arguments[i]);
+  }
+  g_ptr_array_add(argv, nullptr);
+  g_setenv("GDK_BACKEND", "x11", TRUE);
+  g_setenv("GODOTHUB_GL_RETRIED", "1", TRUE);
+  execv(exe, reinterpret_cast<char**>(argv->pdata));
+  g_unsetenv("GDK_BACKEND");
+  g_unsetenv("GODOTHUB_GL_RETRIED");
+  return G_SOURCE_REMOVE;
+}
 
 static gboolean show_gl_failure_dialog(gpointer data) {
   g_autofree gchar* details = static_cast<gchar*>(data);
@@ -45,6 +76,7 @@ static gboolean show_gl_failure_dialog(gpointer data) {
                                            kGlFailureAdvice, details);
   gtk_dialog_add_button(GTK_DIALOG(dialog), "Quit", GTK_RESPONSE_CLOSE);
   gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
+  gtk_window_present(GTK_WINDOW(dialog));
   gtk_dialog_run(GTK_DIALOG(dialog));
   // The window behind it is black and cannot be used, so end the whole app.
   exit(1);
@@ -61,7 +93,13 @@ static GLogWriterOutput gl_failure_log_writer(GLogLevelFlags log_level, const GL
       for (const char* marker : kGlFailureMarkers) {
         if (g_strstr_len(message, fields[i].length, marker) != nullptr &&
             g_atomic_int_compare_and_exchange(&gl_failure_reported, 0, 1)) {
-          g_printerr("\nGodotHub: %s\n\n", kGlFailureAdvice);
+          if (can_retry_on_x11()) {
+            g_printerr("\nGodotHub: could not create an OpenGL context under Wayland, "
+                       "starting again through X11.\n\n");
+            g_idle_add(retry_on_x11, nullptr);
+          } else {
+            g_printerr("\nGodotHub: %s\n\n", kGlFailureAdvice);
+          }
           // A few seconds in, once the app has set up its own window: native window code
           // lists every top-level window, and an earlier dialog would be resized as the app's.
           g_timeout_add_seconds(
@@ -166,6 +204,7 @@ static gboolean my_application_local_command_line(GApplication* application,
   MyApplication* self = MY_APPLICATION(application);
   // Strip out the first argument as it is the binary name.
   self->dart_entrypoint_arguments = g_strdupv(*arguments + 1);
+  launch_arguments = self->dart_entrypoint_arguments;
 
   g_autoptr(GError) error = nullptr;
   if (!g_application_register(application, nullptr, &error)) {

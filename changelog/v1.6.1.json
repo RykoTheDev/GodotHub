@@ -25,7 +25,7 @@
     },
     {
       "category": "fix",
-      "text": "Linux: when GodotHub can't set up its graphics, it now says so and suggests what to try, instead of leaving a black window that can't be closed (#371)"
+      "text": "Linux: on Wayland, when GodotHub can't set up its graphics it now restarts itself through X11, and if that doesn't work it says what went wrong and what to try, instead of leaving a black window that can't be closed (#371)"
     },
     {
       "category": "improve",
