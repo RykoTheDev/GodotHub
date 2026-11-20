@@ -503,7 +503,7 @@ Docs live at **[ryko.is-a.dev/godothub-docs](https://ryko.is-a.dev/godothub-docs
 
 ## Credits
 
-Built on [Godot](https://godotengine.org), [Flutter](https://flutter.dev), [Rust](https://www.rust-lang.org/), [flutter_rust_bridge](https://cjycode.com/flutter_rust_bridge/) and [Font Awesome](https://fontawesome.com), plus every open-source library listed in `app/pubspec.yaml` and the `Cargo.toml` files in `crates/`. Thanks also to [Tauri](https://v2.tauri.app), [React](https://react.dev) and [Tailwind CSS](https://tailwindcss.com), which powered GodotHub before v1.6.0.
+Special Thanks to [Godot](https://godotengine.org), [Flutter](https://flutter.dev), [Rust](https://www.rust-lang.org/), [flutter_rust_bridge](https://cjycode.com/flutter_rust_bridge/) and [Font Awesome](https://fontawesome.com), plus every open-source library listed in `app/pubspec.yaml` and the `Cargo.toml` files in `crates/`. Thanks also to [Tauri](https://v2.tauri.app), [React](https://react.dev) and [Tailwind CSS](https://tailwindcss.com), which powered GodotHub before v1.6.0.
 
 Released under the [MIT license](LICENSE).
 
