@@ -12,41 +12,41 @@
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/projects-view.png?v=2" alt="Projects" width="100%">
+      <img src="assets/projects-view.png?v=3" alt="Projects" width="100%">
       <br><strong>Projects, Kanban board</strong>
     </td>
     <td width="50%" align="center">
-      <img src="assets/versions-view.png?v=2" alt="Versions" width="100%">
+      <img src="assets/versions-view.png?v=3" alt="Versions" width="100%">
       <br><strong>Versions</strong>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/templates-view.png?v=2" alt="Templates" width="100%">
+      <img src="assets/templates-view.png?v=3" alt="Templates" width="100%">
       <br><strong>Templates</strong>
     </td>
     <td width="50%" align="center">
-      <img src="assets/asset-store-view.png?v=2" alt="Asset Store" width="100%">
+      <img src="assets/asset-store-view.png?v=3" alt="Asset Store" width="100%">
       <br><strong>Asset Store</strong>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/git-view.png?v=2" alt="Git Integration" width="100%">
+      <img src="assets/git-view.png?v=3" alt="Git Integration" width="100%">
       <br><strong>Git panel</strong>
     </td>
     <td width="50%" align="center">
-      <img src="assets/doctor-view.png?v=2" alt="Project Doctor" width="100%">
+      <img src="assets/doctor-view.png?v=3" alt="Project Doctor" width="100%">
       <br><strong>Project Doctor</strong>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/news-view.png?v=2" alt="Godot News" width="100%">
+      <img src="assets/news-view.png?v=3" alt="Godot News" width="100%">
       <br><strong>News feed</strong>
     </td>
     <td width="50%" align="center">
-      <img src="assets/settings-view.png?v=2" alt="Settings & Appearance" width="100%">
+      <img src="assets/settings-view.png?v=3" alt="Settings & Appearance" width="100%">
       <br><strong>Appearance & Settings</strong>
     </td>
   </tr>
