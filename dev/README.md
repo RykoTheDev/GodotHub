@@ -5,7 +5,7 @@ the app or reaches users.
 
 | Folder | What it holds |
 |---|---|
-| `tool/` | `ci_local.sh` (the CI checks, locally), the i18n checks (`i18n/`), the third-party Rust notices generator (`gen_rust_notices.mjs`), the collation table and date fixture generators, the benchmark (`bench/`), the updater lab (`updater_lab.dart`), the update path CI scripts (`update_ci/`) and the Windows update sandbox (`update_sandbox/`) |
+| `tool/` | `ci_local.sh` (the CI checks, locally), the i18n checks (`i18n/`), the third-party Rust notices generator (`gen_rust_notices.mjs`), the collation table and date fixture generators, the benchmark (`bench/`), the README screenshot generator (`screenshots/`), the updater lab (`updater_lab.dart`), the update path CI scripts (`update_ci/`) and the Windows update sandbox (`update_sandbox/`) |
 | `docs/` | The bridge release runbook and the environment checks |
 | `fixtures/` | Data from older GodotHub versions, read by the Rust tests |
 
