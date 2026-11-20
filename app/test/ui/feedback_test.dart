@@ -376,22 +376,46 @@ void main() {
 
   group('notices', () {
     testWidgets('announcement banner shows after the usage threshold and dismiss persists', (tester) async {
-      final prefs = <String, String>{GhAnnouncement.usageKey: '${GhAnnouncement.usageThresholdSeconds - 15}'};
-      final controller = GhAnnouncementController(getItem: (k) => prefs[k], setItem: (k, v) => prefs[k] = v);
+      final prefs = <String, String>{GhAnnouncement.usageKey: '${GhAnnouncement.usageThresholdSeconds}'};
+      var enabled = true;
+      final controller = GhAnnouncementController(getItem: (k) => prefs[k], setItem: (k, v) => prefs[k] = v, isEnabled: () => enabled);
       var supports = 0;
       await tester.pumpWidget(_app((context) => GhAnnouncementBanner(controller: controller, onSupport: () => supports++)));
       controller.start();
       await tester.pump();
       expect(find.text(t.common.announcement_support_title), findsNothing);
 
-      await tester.pump(const Duration(seconds: 15));
+      // Lifetime threshold already met, but not before the session grace period.
+      await tester.pump(const Duration(seconds: GhAnnouncement.sessionGraceSeconds - GhAnnouncement.tickSeconds));
+      expect(find.text(t.common.announcement_support_title), findsNothing);
+      await tester.pump(const Duration(seconds: GhAnnouncement.tickSeconds));
       await tester.pumpAndSettle();
       expect(find.text(t.common.announcement_support_title), findsOneWidget);
-      expect(prefs[GhAnnouncement.usageKey], '${GhAnnouncement.usageThresholdSeconds}');
 
+      // Turning the support setting off hides it again.
+      enabled = false;
+      await tester.pump(const Duration(seconds: GhAnnouncement.tickSeconds));
+      await tester.pumpAndSettle();
+      expect(find.text(t.common.announcement_support_title), findsNothing);
+      enabled = true;
+      controller.show();
+      await tester.pumpAndSettle();
+
+      // Opening the support page also counts as dismissal.
       await tester.tap(find.text(t.common.support));
+      await tester.pumpAndSettle();
       expect(supports, 1);
+      expect(find.text(t.common.announcement_support_title), findsNothing);
+      expect(prefs[GhAnnouncement.dismissKey], '1');
+      controller.dispose();
+    });
 
+    testWidgets('announcement banner dismiss button persists', (tester) async {
+      final prefs = <String, String>{};
+      final controller = GhAnnouncementController(getItem: (k) => prefs[k], setItem: (k, v) => prefs[k] = v);
+      await tester.pumpWidget(_app((context) => GhAnnouncementBanner(controller: controller, onSupport: () {})));
+      controller.show();
+      await tester.pumpAndSettle();
       await tester.tap(_pressable(t.common.dismiss));
       await tester.pumpAndSettle();
       expect(find.text(t.common.announcement_support_title), findsNothing);

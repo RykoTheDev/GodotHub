@@ -268,7 +268,8 @@ class _SupportButton extends StatelessWidget {
         height: 26,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: tokens.danger.withValues(alpha: hovered ? 0.2 : 0.1),
+          // Quiet until hovered: a permanent red pill in the chrome reads as nagging.
+          color: tokens.danger.withValues(alpha: hovered ? 0.15 : 0),
           borderRadius: BorderRadius.circular(tokens.itemRadius),
         ),
         child: Row(
@@ -278,7 +279,7 @@ class _SupportButton extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               context.tr.common.support,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: tokens.danger),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: hovered ? tokens.danger : tokens.muted),
             ),
           ],
         ),

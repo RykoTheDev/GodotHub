@@ -4,6 +4,7 @@ import '../../../design/design.dart';
 import '../../../ui/core/button.dart';
 import '../../../ui/overlays/popup_registry.dart';
 import '../../../ui/feedback/feedback.dart';
+import '../../../ui/shell/account_menu.dart' show ghSupportUrl;
 import '../gallery_kit.dart';
 
 final feedbackSections = <GallerySection>[
@@ -385,7 +386,7 @@ class _NoticesState extends State<_Notices> {
                     width: 820,
                     child: GhAnnouncementCard(
                       animate: false,
-                      onSupport: () => _announce('Support pressed: ${GhAnnouncement.supportUrl}'),
+                      onSupport: () => _announce('Support pressed: $ghSupportUrl'),
                       onDismiss: () => _announce('Dismiss pressed'),
                     ),
                   ),
@@ -409,7 +410,7 @@ class _NoticesState extends State<_Notices> {
                   height: 160,
                   child: GhAnnouncementBanner(
                     controller: _announcement,
-                    onSupport: () => _announce('Support pressed: ${GhAnnouncement.supportUrl}'),
+                    onSupport: () => _announce('Support pressed: $ghSupportUrl'),
                   ),
                 ),
               ],

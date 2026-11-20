@@ -100,6 +100,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     getItem: _prefs.getItem,
     setItem: _prefs.setItem,
     isHidden: ghAppHidden,
+    isEnabled: () => ref.read(settingsProvider).value?.showSupportButton ?? true,
   );
   final List<String> _mountedTabs = [];
   final Map<String, ({Object inputs, Widget view})> _views = {};
@@ -578,7 +579,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                             padding: insets,
                             child: GhAnnouncementBanner(
                               controller: _announcement,
-                              onSupport: () => Api.openUrl(GhAnnouncement.supportUrl).ignore(),
+                              onSupport: () => Api.openUrl(ghSupportUrl).ignore(),
                             ),
                           ),
                         ),

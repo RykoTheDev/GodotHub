@@ -11,19 +11,26 @@ abstract final class GhAnnouncement {
   static const usageKey = 'godothub_announcement_usage_seconds';
   static const usageThresholdSeconds = 30 * 60;
   static const tickSeconds = 15;
-  static const supportUrl = 'https://www.patreon.com/cw/TheRyko/membership';
+
+  /// Active seconds in the current session before the banner may appear, so it
+  /// never pops in right at launch even once the lifetime threshold is met.
+  static const sessionGraceSeconds = 5 * 60;
 }
 
 class GhAnnouncementController extends ChangeNotifier {
-  GhAnnouncementController({required this.getItem, required this.setItem, this.isHidden});
+  GhAnnouncementController({required this.getItem, required this.setItem, this.isHidden, this.isEnabled});
 
   final String? Function(String key) getItem;
   final void Function(String key, String value) setItem;
   final bool Function()? isHidden;
 
+  /// Mirrors the "Show support button" setting: when off, the banner stays away.
+  final bool Function()? isEnabled;
+
   bool _visible = false;
   bool _dismissed = false;
   int _usage = 0;
+  int _session = 0;
   Timer? _timer;
 
   bool get visible => _visible;
@@ -34,24 +41,30 @@ class GhAnnouncementController extends ChangeNotifier {
       _dismissed = getItem(GhAnnouncement.dismissKey) == '1';
     } catch (_) {}
     _usage = 0;
+    _session = 0;
     try {
       _usage = num.tryParse(getItem(GhAnnouncement.usageKey) ?? '')?.toInt() ?? 0;
     } catch (_) {}
-    if (!_dismissed && _usage >= GhAnnouncement.usageThresholdSeconds) {
-      _setVisible(true);
-    }
     _timer = Timer.periodic(const Duration(seconds: GhAnnouncement.tickSeconds), (_) => _tick());
   }
 
   void _tick() {
-    if ((isHidden?.call() ?? false) || _dismissed) {
+    if (_dismissed) {
+      return;
+    }
+    if (!(isEnabled?.call() ?? true)) {
+      _setVisible(false);
+      return;
+    }
+    if (isHidden?.call() ?? false) {
       return;
     }
     _usage += GhAnnouncement.tickSeconds;
+    _session += GhAnnouncement.tickSeconds;
     try {
       setItem(GhAnnouncement.usageKey, '$_usage');
     } catch (_) {}
-    if (_usage >= GhAnnouncement.usageThresholdSeconds) {
+    if (_usage >= GhAnnouncement.usageThresholdSeconds && _session >= GhAnnouncement.sessionGraceSeconds) {
       _setVisible(true);
     }
   }
@@ -100,7 +113,14 @@ class GhAnnouncementBanner extends StatelessWidget {
           alignment: Alignment.bottomCenter,
           child: Padding(
             padding: EdgeInsets.fromLTRB(theme.space(4), 0, theme.space(4), theme.space(4)),
-            child: GhAnnouncementCard(onSupport: onSupport, onDismiss: controller.dismiss),
+            child: GhAnnouncementCard(
+              // Opening the support page counts as an answer: don't ask again.
+              onSupport: () {
+                controller.dismiss();
+                onSupport();
+              },
+              onDismiss: controller.dismiss,
+            ),
           ),
         );
       },
