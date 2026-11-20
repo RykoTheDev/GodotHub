@@ -315,12 +315,13 @@ def _blend(paths):
     for c in cuts: draw.line([(c + SLANT / 2, 0), (c - SLANT / 2, h)], fill=ACCENT + (255,), width=4)
     try: font = ImageFont.truetype("segoeuib.ttf", 22)  # Windows UI font, bold
     except OSError: font = ImageFont.load_default()
-    for i, (_, label) in enumerate(paths):  # name each slice with a pill near the bottom
-        cx = (max(edges[i], w * 0.27) + edges[i + 1]) / 2 - SLANT * 0.4  # content area only; the lines lean left toward the bottom
-        cx = min(max(cx, 90), w - 90)
+    ly = h * 0.84  # label height; each pill is centred between the two dividing lines at that height
+    lean = lambda x: x + SLANT / 2 - SLANT * ly / h
+    for i, (_, label) in enumerate(paths):
+        cx = (max(lean(edges[i]), 0) + min(lean(edges[i + 1]), w)) / 2
         box = draw.textbbox((0, 0), label, font=font)
         tw, th = box[2] - box[0], box[3] - box[1]
-        x0, y0, x1, y1 = cx - tw / 2 - 20, h - 74, cx + tw / 2 + 20, h - 74 + th + 22
+        x0, y0, x1, y1 = cx - tw / 2 - 20, ly - (th + 22) / 2, cx + tw / 2 + 20, ly + (th + 22) / 2
         draw.rounded_rectangle((x0, y0, x1, y1), (y1 - y0) / 2, fill=ACCENT + (255,))
         draw.text((cx - tw / 2 - box[0], y0 + 11 - box[1]), label, font=font, fill=(255, 255, 255, 255))
     return out

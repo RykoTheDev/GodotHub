@@ -105,15 +105,40 @@
 
 <a id="install"></a>
 
+### Windows
+
+**Winget**
 ```powershell
 winget install Ryko.GodotHub
 ```
 
+**Scoop**
 ```powershell
 scoop bucket add extras; scoop install godothub
 ```
 
-Or grab a build from the **[latest release](https://github.com/RykoTheDev/GodotHub/releases/latest)**:
+**PowerShell**
+```powershell
+irm https://ryko.is-a.dev/godothub/install.ps1 | iex
+```
+
+### Linux / MacOS
+
+**Shell**
+```bash
+curl -fsSL https://ryko.is-a.dev/godothub/install.sh | sh
+```
+
+### Linux Only
+
+**AppImage** via the [AppImage Package Manager](https://github.com/ivan-hc/AM)
+```bash
+am -i godothub
+```
+
+### Download
+
+Prefer an installer? Grab one from the **[latest release](https://github.com/RykoTheDev/GodotHub/releases/latest)**:
 
 | | Download |
 |---|---|
