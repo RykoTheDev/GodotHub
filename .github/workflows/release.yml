@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FLUTTER_VERSION: '3.50.0'
+  FLUTTER_VERSION: '3.50.1'
   RUST_VERSION: '1.99.1'
   TAURI_CLI_VERSION: '2.12.3'
   NSIS_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip'
