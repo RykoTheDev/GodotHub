@@ -174,6 +174,17 @@ void main() {
     expect(find.text(versions), findsNothing);
   });
 
+  testWidgets('hovering Built with in a development build says why there are no versions', (tester) async {
+    await pumpBody(tester, const CreditsSettings());
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(find.byKey(const ValueKey('credits-built-with'))));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.textContaining('development build'), findsOneWidget);
+  });
+
   testWidgets('Built with has no tooltip when the build has no versions', (tester) async {
     await pumpBody(tester, const CreditsSettings(builtWithTooltip: ''));
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
