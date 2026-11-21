@@ -1,0 +1,15 @@
+{
+  "id": "4d16e55a-b61e-4304-af45-358cd260d42f",
+  "version": "v1.6.2",
+  "date": "2026-11-21",
+  "notes": [
+    {
+      "category": "fix",
+      "text": "Linux: GodotHub no longer draws its whole window shifted left and down by about half its size on some systems, such as Fedora with Hyprland. The 1.6.1 packages were built with an older Flutter that caused it, so releases are now built with Flutter 3.50.1 (#377)"
+    }
+  ],
+  "known_issues": [
+    "Linux: When launching GodotHub, App itself may take a second to appear due to the workaround on fixing resize issue."
+  ],
+  "created_at": 1795261165
+}
