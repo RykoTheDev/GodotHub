@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -155,6 +156,44 @@ void main() {
     await base.settle(tester);
     expect(find.byType(ContributorPrsModal), findsOneWidget);
     expect(tester.widget<ContributorPrsModal>(find.byType(ContributorPrsModal)).login, 'alice');
+  });
+
+  testWidgets('hovering Built with shows the Flutter and Rust versions', (tester) async {
+    const versions = 'Flutter 3.50.1\nRust 1.99.1';
+    await pumpBody(tester, const CreditsSettings(builtWithTooltip: versions));
+    expect(find.text(versions), findsNothing);
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(find.byKey(const ValueKey('credits-built-with'))));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text(versions), findsOneWidget);
+    await mouse.moveTo(Offset.zero);
+    await base.settle(tester, 4);
+    expect(find.text(versions), findsNothing);
+  });
+
+  testWidgets('hovering Built with in a development build says why there are no versions', (tester) async {
+    await pumpBody(tester, const CreditsSettings());
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(find.byKey(const ValueKey('credits-built-with'))));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.textContaining('development build'), findsOneWidget);
+  });
+
+  testWidgets('Built with has no tooltip when the build has no versions', (tester) async {
+    await pumpBody(tester, const CreditsSettings(builtWithTooltip: ''));
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(find.byKey(const ValueKey('credits-built-with'))));
+    await tester.pump(const Duration(milliseconds: 800));
+    expect(find.text('Flutter'), findsNothing);
+    expect(find.text(creditsBuiltWith), findsOneWidget);
   });
 
   testWidgets('debug tab is English and runs its tools', (tester) async {

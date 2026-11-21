@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/opener.dart';
+import '../../build_info.dart';
 import '../../design/design.dart';
 import '../../modals/contributor_prs_modal.dart';
 import '../../motion/presence.dart';
@@ -9,6 +10,7 @@ import '../../state/contributors.dart';
 import '../../ui/core/button.dart';
 import '../../ui/core/i18n.dart';
 import '../../ui/core/interaction.dart';
+import '../../ui/core/tooltip.dart';
 import '../../ui/feedback/modal_shell.dart';
 import '../../ui/feedback/toast.dart';
 import '../../ui/reusables/state_panel.dart';
@@ -22,7 +24,10 @@ const creditsLicense = 'MIT';
 const creditsBuiltWith = 'Flutter + Rust';
 
 class CreditsSettings extends ConsumerWidget {
-  const CreditsSettings({super.key});
+  const CreditsSettings({super.key, this.builtWithTooltip});
+
+  /// What hovering "Built with" shows. Defaults to the versions this build was made with.
+  final String? builtWithTooltip;
 
   void _openContributor(BuildContext context, Contributor contributor) {
     showGhModal<void>(
@@ -119,7 +124,13 @@ class CreditsSettings extends ConsumerWidget {
                 spacing: theme.space(3),
                 children: [
                   Expanded(child: infoTile(_ts('git_option_license'), creditsLicense)),
-                  Expanded(child: infoTile(_ts('credits_built_with'), creditsBuiltWith)),
+                  Expanded(
+                    child: GhTooltip(
+                      key: const ValueKey('credits-built-with'),
+                      message: builtWithTooltip ?? builtWithVersions(),
+                      child: infoTile(_ts('credits_built_with'), creditsBuiltWith),
+                    ),
+                  ),
                 ],
               ),
               Align(
