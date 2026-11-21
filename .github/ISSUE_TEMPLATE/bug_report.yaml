@@ -85,7 +85,8 @@ body:
         - 1.5.9
         - 1.6.0
         - 1.6.1
-      default: 21
+        - 1.6.2
+      default: 22
     validations:
       required: true
   - type: checkboxes
