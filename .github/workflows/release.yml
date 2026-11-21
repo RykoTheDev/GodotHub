@@ -135,7 +135,7 @@ jobs:
 
       - name: Build the app
         working-directory: app
-        run: flutter build ${{ matrix.target }} --release --dart-define=APP_VERSION="$VERSION" --build-name="$VERSION" --build-number="${{ github.run_number }}"
+        run: flutter build ${{ matrix.target }} --release --dart-define=APP_VERSION="$VERSION" --dart-define=FLUTTER_BUILD_VERSION="$FLUTTER_VERSION" --dart-define=RUST_BUILD_VERSION="$RUST_VERSION" --build-name="$VERSION" --build-number="${{ github.run_number }}"
 
       - name: Check the build has no test switches
         working-directory: app
